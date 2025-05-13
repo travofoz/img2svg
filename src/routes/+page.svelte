@@ -1,115 +1,55 @@
 <script>
-  import ImageUpload from '$lib/components/ImageUpload.svelte';
-  import TraceControls from '$lib/components/TraceControls.svelte';
-  import SvgPreview from '$lib/components/SvgPreview.svelte';
   import { 
     traceImage, 
     createImageDataFromFile, 
     createImageUrlFromFile,
     optimizeSvg
   } from '$lib/services/imageTracerService.js';
-  import {
-    checkBrowserCompatibility,
-    getCompatibilityWarnings,
-    hasMinimumCompatibility
-  } from '$lib/services/browserCompatibility.js';
-  import { getImageWarnings, getImageFormatName } from '$lib/utils/imageProcessors.js';
-  import { onMount } from 'svelte';
   
-  // Application state
-  let uploadedFile = null;
-  let originalImageUrl = '';
-  let imageData = null;
-  let imageFormat = '';
-  let traceOptions = {
+  // Basic state
+  let uploadedFile = $state(null);
+  let originalImageUrl = $state('');
+  let imageData = $state(null);
+  let svgString = $state('');
+  let isTracing = $state(false);
+  let traceOptions = $state({
     preset: 'default',
     ltres: 1,
     qtres: 1,
     pathomit: 8,
     colorsampling: 2,
-    numberofcolors: 16,
-    mincolorratio: 0.02,
-    colorquantcycles: 3,
-    blurradius: 0,
-    blurdelta: 20,
-    scale: 1,
-    roundcoords: 1,
-    linefilter: false,
-    strokewidth: 1
-  };
-  let svgString = '';
-  let svgStats = {
-    width: 0,
-    height: 0,
-    paths: 0,
-    nodes: 0,
-    size: '0KB'
-  };
-  let isTracing = false;
-  let showOriginal = false;
-  
-  // Warning messages
-  let compatibilityWarnings = [];
-  let imageWarnings = [];
-  let compatibilityChecked = false;
-  let isCompatible = true;
-  
-  onMount(() => {
-    // Check browser compatibility
-    const compatibility = checkBrowserCompatibility();
-    compatibilityWarnings = getCompatibilityWarnings(compatibility);
-    isCompatible = hasMinimumCompatibility();
-    compatibilityChecked = true;
+    numberofcolors: 16
   });
   
   // Handle file upload
-  async function handleFilesChange(event) {
-    const { files } = event.detail;
+  async function handleFileChange(event) {
+    const files = event.target.files;
     
     if (files && files.length > 0) {
-      // Use only the first file
       uploadedFile = files[0];
-      
-      // Clear previous image warnings
-      imageWarnings = [];
-      
-      // Set image format
-      imageFormat = getImageFormatName(uploadedFile.type);
-      
-      // Create URL for preview
       originalImageUrl = createImageUrlFromFile(uploadedFile);
       
-      // Get image-specific warnings
-      imageWarnings = await getImageWarnings(uploadedFile);
-      
       try {
-        // Convert file to image data
         imageData = await createImageDataFromFile(uploadedFile);
         
-        // Auto-trace if we have image data
         if (imageData) {
-          processTrace();
+          isTracing = true;
+          const result = await traceImage(imageData, traceOptions);
+          svgString = optimizeSvg(result.svgString);
+          isTracing = false;
         }
       } catch (error) {
         console.error('Error processing image:', error);
         alert('Failed to process the image. Please try another file.');
+        isTracing = false;
       }
-    } else {
-      // Reset if no files
-      uploadedFile = null;
-      originalImageUrl = '';
-      imageData = null;
-      svgString = '';
-      imageFormat = '';
-      imageWarnings = [];
     }
   }
   
-  // Handle trace options change
-  function handleOptionsChange(event) {
-    traceOptions = event.detail.options;
+  // Handle preset selection
+  function selectPreset(preset) {
+    traceOptions.preset = preset;
     
-    // Re-trace with new options if we have an image
     if (imageData) {
       processTrace();
     }
@@ -122,13 +62,8 @@
     isTracing = true;
     
     try {
-      // Trace the image
       const result = await traceImage(imageData, traceOptions);
-      
-      // Optimize SVG for final output
       svgString = optimizeSvg(result.svgString);
-      svgStats = result.stats;
-      
       isTracing = false;
     } catch (error) {
       console.error('Error during tracing:', error);
@@ -136,92 +71,182 @@
       isTracing = false;
     }
   }
-  
-  // Dismiss warning
-  function dismissWarning(warnings, index) {
-    return warnings.filter((_, i) => i !== index);
-  }
 </script>
 
-<div class="container mx-auto p-4">
-  <header class="text-center mb-8">
-    <h1 class="text-4xl font-bold mb-2">Image to SVG Converter</h1>
-    <p class="text-base-content/70">Upload any raster image and convert it to a vector SVG using intelligent tracing</p>
-  </header>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
   
-  <!-- Compatibility warnings -->
-  {#if compatibilityChecked && compatibilityWarnings.length > 0}
-    <div class="mb-4">
-      {#each compatibilityWarnings as warning, i}
-        <div class="alert alert-warning mb-2 flex justify-between items-center">
-          <span>{warning}</span>
-          <button class="btn btn-sm btn-circle" on:click={() => compatibilityWarnings = dismissWarning(compatibilityWarnings, i)}>✕</button>
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold mb-2">Image to SVG Converter</h1>
+    <p class="text-base-content/70">Convert your images to scalable vector graphics</p>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+    <!-- Left Panel -->
+    <div class="md:col-span-5">
+      <!-- Upload Card -->
+      <div class="card bg-base-200 shadow-lg mb-6">
+        <div class="card-body">
+          <h2 class="card-title text-lg">Upload Image</h2>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Select an image file</span>
+            </label>
+            <input 
+              type="file" 
+              class="file-input file-input-bordered file-input-primary w-full" 
+              accept="image/png,image/jpeg,image/webp,image/gif,image/bmp"
+              onchange={handleFileChange}
+            />
+            <label class="label">
+              <span class="label-text-alt">Supported: PNG, JPG, WebP, GIF, BMP</span>
+            </label>
+          </div>
         </div>
-      {/each}
-    </div>
-  {/if}
-  
-  <!-- Image-specific warnings -->
-  {#if imageWarnings.length > 0}
-    <div class="mb-4">
-      {#each imageWarnings as warning, i}
-        <div class="alert alert-info mb-2 flex justify-between items-center">
-          <span>{warning}</span>
-          <button class="btn btn-sm btn-circle" on:click={() => imageWarnings = dismissWarning(imageWarnings, i)}>✕</button>
-        </div>
-      {/each}
-    </div>
-  {/if}
-  
-  {#if !compatibilityChecked || isCompatible}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <!-- Left column: Image upload and configuration -->
-      <div class="lg:col-span-1 space-y-4">
-        <!-- Image upload component -->
-        <ImageUpload 
-          multiple={false} 
-          accept="image/png,image/jpeg,image/webp,image/gif,image/bmp"
-          on:filesChange={handleFilesChange}
-        />
-        
-        <!-- Trace configuration -->
-        {#if imageData}
-          <TraceControls 
-            options={traceOptions}
-            on:optionsChange={handleOptionsChange}
-          />
-        {/if}
       </div>
       
-      <!-- Right column: Preview and output -->
-      <div class="lg:col-span-2">
-        {#if isTracing}
-          <div class="w-full h-64 flex flex-col items-center justify-center">
-            <span class="loading loading-spinner loading-lg text-primary"></span>
-            <p class="mt-4">Tracing image...</p>
+      <!-- Settings Card -->
+      {#if imageData}
+        <div class="card bg-base-200 shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title text-lg">Trace Settings</h2>
+            
+            <!-- Presets -->
+            <div class="mb-4">
+              <label class="label"><span class="label-text">Select a preset</span></label>
+              <div class="join w-full">
+                <button class="btn btn-sm join-item flex-1 {traceOptions.preset === 'default' ? 'btn-primary' : ''}" onclick={() => selectPreset('default')}>Default</button>
+                <button class="btn btn-sm join-item flex-1 {traceOptions.preset === 'posterized2' ? 'btn-primary' : ''}" onclick={() => selectPreset('posterized2')}>Poster</button>
+                <button class="btn btn-sm join-item flex-1 {traceOptions.preset === 'curvy' ? 'btn-primary' : ''}" onclick={() => selectPreset('curvy')}>Curvy</button>
+              </div>
+              <div class="join w-full mt-2">
+                <button class="btn btn-sm join-item flex-1 {traceOptions.preset === 'sharp' ? 'btn-primary' : ''}" onclick={() => selectPreset('sharp')}>Sharp</button>
+                <button class="btn btn-sm join-item flex-1 {traceOptions.preset === 'detailed' ? 'btn-primary' : ''}" onclick={() => selectPreset('detailed')}>Detailed</button>
+                <button class="btn btn-sm join-item flex-1 {traceOptions.preset === 'smoothed' ? 'btn-primary' : ''}" onclick={() => selectPreset('smoothed')}>Smooth</button>
+              </div>
+            </div>
+            
+            <!-- Colors Control -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Number of colors</span>
+                <span class="label-text-alt">{traceOptions.numberofcolors}</span>
+              </label>
+              <input 
+                type="range" 
+                min="2" 
+                max="64" 
+                value={traceOptions.numberofcolors}
+                onchange={(e) => {
+                  traceOptions.numberofcolors = parseInt(e.target.value);
+                  traceOptions.preset = 'custom';
+                  processTrace();
+                }}
+                class="range range-xs range-primary" 
+              />
+            </div>
           </div>
-        {:else}
-          <SvgPreview
-            {svgString}
-            {originalImageUrl}
-            {svgStats}
-            {imageFormat}
-            bind:showOriginal
-          />
-        {/if}
-      </div>
+        </div>
+      {/if}
     </div>
-  {:else}
-    <!-- Compatibility error -->
-    <div class="card bg-error text-error-content p-6 text-center">
-      <h2 class="text-2xl font-bold mb-4">Browser Not Compatible</h2>
-      <p>Your browser does not support the required features for this application to function properly.</p>
-      <p class="mt-4">Please try a modern browser like Chrome, Firefox, or Edge.</p>
+    
+    <!-- Right Panel -->
+    <div class="md:col-span-7">
+      <!-- Processing Indicator -->
+      {#if isTracing}
+        <div class="card bg-base-200 shadow-lg">
+          <div class="card-body items-center text-center py-12">
+            <div class="loading loading-spinner loading-lg text-primary"></div>
+            <p class="mt-4">Converting image to SVG...</p>
+          </div>
+        </div>
+      
+      <!-- Original Image Preview -->
+      {:else if originalImageUrl && !svgString}
+        <div class="card bg-base-200 shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title text-lg">Original Image</h2>
+            <div class="bg-base-300 rounded-box p-4 flex justify-center">
+              <img 
+                src={originalImageUrl} 
+                alt="Original" 
+                class="max-w-full max-h-[400px] object-contain" 
+              />
+            </div>
+          </div>
+        </div>
+      
+      <!-- SVG Result -->
+      {:else if svgString}
+        <div class="card bg-base-200 shadow-lg">
+          <div class="card-body">
+            <div class="flex justify-between items-center">
+              <h2 class="card-title text-lg">SVG Result</h2>
+              <div class="tabs tabs-boxed bg-base-300">
+                <button class="tab tab-sm {!originalImageUrl ? 'tab-active' : ''}" onclick={() => originalImageUrl = ''}>SVG</button>
+                <button class="tab tab-sm {originalImageUrl ? 'tab-active' : ''}" onclick={() => originalImageUrl = createImageUrlFromFile(uploadedFile)}>Original</button>
+              </div>
+            </div>
+            
+            <!-- Preview area -->
+            <div class="bg-base-300 rounded-box p-4 flex justify-center">
+              {#if originalImageUrl}
+                <img 
+                  src={originalImageUrl} 
+                  alt="Original" 
+                  class="max-w-full max-h-[400px] object-contain" 
+                />
+              {:else}
+                <div class="max-w-full max-h-[400px] overflow-auto">
+                  {@html svgString}
+                </div>
+              {/if}
+            </div>
+            
+            <!-- Action buttons -->
+            <div class="card-actions justify-end mt-4">
+              <button 
+                class="btn btn-primary" 
+                onclick={() => {
+                  const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `image-${Date.now()}.svg`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download SVG
+              </button>
+            </div>
+          </div>
+        </div>
+      
+      <!-- Empty State -->
+      {:else}
+        <div class="card bg-base-200 shadow-lg">
+          <div class="card-body items-center text-center py-12">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 class="mt-4 text-lg font-medium">No Image Selected</h3>
+            <p class="mt-2 text-sm opacity-70">Upload an image to convert it to SVG</p>
+          </div>
+        </div>
+      {/if}
     </div>
-  {/if}
+  </div>
+  
   
   <!-- Footer -->
-  <footer class="mt-8 text-center text-sm text-base-content/70">
-    <p>Image to SVG Converter - Transform raster images into scalable vector graphics</p>
-  </footer>
+  <div class="mt-4 text-center text-xs opacity-50">
+    <p>Convert raster images to SVG using intelligent tracing algorithms</p>
+  </div>
 </div>
