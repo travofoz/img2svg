@@ -57,35 +57,4 @@
   </svg>
 </label>
 
-<style>
-  /* Ensure the theme toggle is properly styled with new DaisyUI classes */
-  :global(.swap) {
-    position: relative;
-    display: inline-grid;
-    user-select: none;
-    place-content: center;
-  }
-  
-  :global(.swap-on),
-  :global(.swap-off) {
-    grid-area: 1/1;
-    transition-duration: 0.3s;
-    transition-timing-function: ease-in-out;
-  }
-  
-  :global(.swap input[type="checkbox"]:checked ~ .swap-on) {
-    opacity: 1;
-  }
-  
-  :global(.swap input[type="checkbox"]:checked ~ .swap-off) {
-    opacity: 0;
-  }
-  
-  :global(.swap-off) {
-    opacity: 1;
-  }
-  
-  :global(.swap-on) {
-    opacity: 0;
-  }
-</style>
+<!-- No custom styles needed for ThemeSwitch - DaisyUI's swap component works properly with its default styling -->

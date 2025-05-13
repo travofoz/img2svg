@@ -118,11 +118,11 @@
     <!-- Preview title -->
     <div>
       {#if originalImageUrl && svgString}
-        <span class="text-sm font-medium">{showOriginal ? 'Original Image' : 'SVG Result'} ({svgStats.width}x{svgStats.height})</span>
+        <span class="text-sm font-medium">Toggle to compare Original and SVG</span>
       {:else if originalImageUrl}
         <span class="text-sm font-medium">Original Image</span>
       {:else if svgString}
-        <span class="text-sm font-medium">SVG Result ({svgStats.width}x{svgStats.height})</span>
+        <span class="text-sm font-medium">SVG Result</span>
       {/if}
     </div>
     
@@ -158,17 +158,22 @@
   
   <!-- Preview area -->
   <div class="bg-base-200 rounded-md overflow-hidden flex items-center justify-center flex-grow min-h-[350px]">
-    {#if originalImageUrl && svgString}
-      <div class="w-full h-full flex items-center justify-center overflow-hidden">
+    <div class="preview-container relative">
+      {#if originalImageUrl && svgString}
         {#if showOriginal}
+          <div class="preview-label absolute top-2 left-2 bg-base-300 text-xs px-2 py-1 rounded opacity-70">
+            Original Image
+          </div>
           <img 
             src={originalImageUrl} 
-            alt="Original image" 
-            class="max-h-[350px] object-contain transition-transform duration-200"
-            style="transform: scale({scale});"
+            alt="Original image"
+            style="transform: scale({scale}); max-width: min(100%, {svgStats.width}px); max-height: min(350px, {svgStats.height}px); object-fit: contain;"
           />
         {:else}
-          <div class="svg-container" style="transform: scale({scale}); transition: transform 0.2s; background: white; border-radius: 5px; width: {svgStats.width}px; height: {svgStats.height}px; display: flex; align-items: center; justify-content: center;">
+          <div class="preview-label absolute top-2 left-2 bg-base-300 text-xs px-2 py-1 rounded opacity-70">
+            SVG ({svgStats.width}x{svgStats.height})
+          </div>
+          <div style="transform: scale({scale}); width: {svgStats.width}px; height: {svgStats.height}px; background: white;">
             {@html svgString}
           </div>
         {/if}
@@ -180,30 +185,31 @@
           title={showOriginal ? "Show SVG" : "Show Original"}
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
           </svg>
         </button>
-      </div>
-    {:else if originalImageUrl}
-      <div class="w-full h-full flex items-center justify-center overflow-hidden">
+      {:else if originalImageUrl}
+        <div class="preview-label absolute top-2 left-2 bg-base-300 text-xs px-2 py-1 rounded opacity-70">
+          Original Image
+        </div>
         <img 
           src={originalImageUrl} 
-          alt="Original image" 
-          class="max-h-[350px] object-contain transition-transform duration-200"
-          style="transform: scale({scale});"
+          alt="Original image"
+          style="transform: scale({scale}); max-height: 350px; object-fit: contain;"
         />
-      </div>
-    {:else if svgString}
-      <div class="w-full h-full flex items-center justify-center overflow-hidden">
-        <div class="svg-container" style="transform: scale({scale}); transition: transform 0.2s; background: white; border-radius: 5px; width: {svgStats.width}px; height: {svgStats.height}px; display: flex; align-items: center; justify-content: center;">
+      {:else if svgString}
+        <div class="preview-label absolute top-2 left-2 bg-base-300 text-xs px-2 py-1 rounded opacity-70">
+          SVG ({svgStats.width}x{svgStats.height})
+        </div>
+        <div style="transform: scale({scale}); width: {svgStats.width}px; height: {svgStats.height}px; background: white;">
           {@html svgString}
         </div>
-      </div>
-    {:else}
-      <div class="text-center p-4 text-base-content/50 text-xs">
-        <p>Upload an image to see the SVG preview</p>
-      </div>
-    {/if}
+      {:else}
+        <div class="text-center p-4 text-base-content/50 text-xs">
+          <p>Upload an image to see the SVG preview</p>
+        </div>
+      {/if}
+    </div>
   </div>
   
   <!-- SVG stats -->
@@ -261,21 +267,22 @@
 </div>
 
 <style>
+  .preview-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    max-width: 100%;
+    max-height: 350px;
+  }
+  
   :global(svg) {
     width: 100%;
     height: 100%;
-    display: block;
-    object-fit: contain;
-  }
-  
-  .svg-container {
-    max-width: 100%;
-    max-height: 350px;
-    overflow: visible;
   }
   
   @media (prefers-color-scheme: dark) {
-    div[style*="background: white"] {
+    :global(html[data-theme="luxury"] div[style*="background: white"]) {
       background: #1a1a1a !important;
     }
   }
