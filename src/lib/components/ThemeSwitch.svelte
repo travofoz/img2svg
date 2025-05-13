@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   
   // Available themes
-  const LIGHT_THEME = 'retro';
+  const LIGHT_THEME = 'corporate';
   const DARK_THEME = 'luxury';
   
   // Current theme state - default to dark
