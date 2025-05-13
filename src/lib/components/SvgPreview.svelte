@@ -61,12 +61,55 @@
     if (!svgString) return;
     
     try {
-      await navigator.clipboard.writeText(svgString);
-      alert('SVG copied to clipboard!');
+      // Try using the Clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(svgString);
+        showToast('SVG copied to clipboard!');
+        return;
+      }
+      
+      // Fallback method using text area
+      const textArea = document.createElement('textarea');
+      textArea.value = svgString;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const success = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (success) {
+        showToast('SVG copied to clipboard!');
+      } else {
+        throw new Error('Failed to copy using execCommand');
+      }
     } catch (err) {
       console.error('Failed to copy SVG:', err);
-      alert('Failed to copy SVG to clipboard');
+      showToast('Failed to copy SVG to clipboard', 'error');
     }
+  }
+  
+  // Toast notification function
+  function showToast(message, type = 'success') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} fixed bottom-4 right-4 z-50 p-4 rounded-box shadow-lg`;
+    toast.style.backgroundColor = type === 'success' ? 'hsl(var(--su))' : 'hsl(var(--er))';
+    toast.style.color = 'white';
+    toast.innerText = message;
+    
+    // Add to DOM
+    document.body.appendChild(toast);
+    
+    // Remove after a delay
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.5s ease';
+      setTimeout(() => document.body.removeChild(toast), 500);
+    }, 3000);
   }
 </script>
 
