@@ -42,7 +42,7 @@
   }
 </script>
 
-<label class="swap swap-rotate bg-transparent border-none">
+<label class="swap swap-rotate bg-transparent border-none w-5 h-5">
   <!-- Hidden checkbox controls the state -->
   <input type="checkbox" checked={isDark} on:change={toggleTheme} class="opacity-0" />
   
@@ -58,12 +58,17 @@
 </label>
 
 <style>
-  /* Ensure the theme toggle is properly styled with new DaisyUI classes */
+  /* Ensure the theme toggle is properly styled with DaisyUI */
   :global(.swap) {
     position: relative;
     display: inline-grid;
     user-select: none;
     place-content: center;
+    width: 20px !important;
+    height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+    overflow: hidden;
   }
   
   :global(.swap-on),
@@ -71,6 +76,8 @@
     grid-area: 1/1;
     transition-duration: 0.3s;
     transition-timing-function: ease-in-out;
+    width: 20px !important;
+    height: 20px !important;
   }
   
   :global(.swap input[type="checkbox"]:checked ~ .swap-on) {
