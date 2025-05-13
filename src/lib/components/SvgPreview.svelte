@@ -116,24 +116,30 @@
   <!-- Preview area -->
   <div class="bg-base-200 rounded-md overflow-hidden flex items-center justify-center flex-grow min-h-[350px]">
     {#if originalImageUrl && svgString}
-      <div class="w-full h-full overflow-hidden flex items-center justify-center">
-        <!-- DaisyUI diff component -->
-        <div class="diff aspect-auto h-full w-full max-w-full max-h-full rounded-lg">
-          <div class="diff-item-1 flex items-center justify-center">
-            <img 
-              src={originalImageUrl} 
-              alt="Original image" 
-              class="max-h-[350px] object-contain"
-              style="transform: scale({scale});"
-            />
+      <div class="w-full h-full flex items-center justify-center overflow-hidden">
+        {#if showOriginal}
+          <img 
+            src={originalImageUrl} 
+            alt="Original image" 
+            class="max-h-[350px] object-contain transition-transform duration-200"
+            style="transform: scale({scale});"
+          />
+        {:else}
+          <div style="transform: scale({scale}); transition: transform 0.2s; max-height: 350px; background: white; padding: 10px; border-radius: 5px;">
+            {@html svgString}
           </div>
-          <div class="diff-item-2 flex items-center justify-center bg-white dark:bg-gray-800">
-            <div style="transform: scale({scale}); transition: transform 0.2s; max-height: 350px; display: flex; align-items: center; justify-content: center;">
-              {@html svgString}
-            </div>
-          </div>
-          <div class="diff-resizer"></div>
-        </div>
+        {/if}
+        
+        <!-- Toggle button -->
+        <button 
+          class="absolute top-2 right-2 btn btn-xs btn-circle"
+          onclick={togglePreview}
+          title={showOriginal ? "Show SVG" : "Show Original"}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+        </button>
       </div>
     {:else if originalImageUrl}
       <div class="w-full h-full flex items-center justify-center overflow-hidden">
@@ -146,7 +152,7 @@
       </div>
     {:else if svgString}
       <div class="w-full h-full flex items-center justify-center overflow-hidden">
-        <div style="transform: scale({scale}); transition: transform 0.2s; max-height: 350px;">
+        <div style="transform: scale({scale}); transition: transform 0.2s; max-height: 350px; background: white; padding: 10px; border-radius: 5px;">
           {@html svgString}
         </div>
       </div>
@@ -213,27 +219,16 @@
 
 <style>
   :global(svg) {
-    max-width: 100%;
+    max-width: 100%; 
     max-height: 350px;
     width: auto;
     height: auto;
-  }
-  
-  /* Make sure diff slider is visible */
-  :global(.diff-resizer) {
-    width: 4px;
-    background-color: hsl(var(--p));
-    opacity: 0.8;
-  }
-  
-  /* Ensure SVG visibility with appropriate background */
-  :global(.diff-item-2) {
-    background: white;
+    display: block;
   }
   
   @media (prefers-color-scheme: dark) {
-    :global(html[data-theme="luxury"] .diff-item-2) {
-      background: #1a1a1a;
+    div[style*="background: white"] {
+      background: #1a1a1a !important;
     }
   }
 </style>
