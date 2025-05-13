@@ -118,11 +118,11 @@
     <!-- Preview title -->
     <div>
       {#if originalImageUrl && svgString}
-        <span class="text-sm font-medium">Slide to compare original and SVG</span>
+        <span class="text-sm font-medium">{showOriginal ? 'Original Image' : 'SVG Result'} ({svgStats.width}x{svgStats.height})</span>
       {:else if originalImageUrl}
         <span class="text-sm font-medium">Original Image</span>
       {:else if svgString}
-        <span class="text-sm font-medium">SVG Result</span>
+        <span class="text-sm font-medium">SVG Result ({svgStats.width}x{svgStats.height})</span>
       {/if}
     </div>
     
@@ -168,7 +168,7 @@
             style="transform: scale({scale});"
           />
         {:else}
-          <div style="transform: scale({scale}); transition: transform 0.2s; max-height: 350px; background: white; padding: 10px; border-radius: 5px;">
+          <div class="svg-container" style="transform: scale({scale}); transition: transform 0.2s; background: white; border-radius: 5px; width: {svgStats.width}px; height: {svgStats.height}px; display: flex; align-items: center; justify-content: center;">
             {@html svgString}
           </div>
         {/if}
@@ -195,7 +195,7 @@
       </div>
     {:else if svgString}
       <div class="w-full h-full flex items-center justify-center overflow-hidden">
-        <div style="transform: scale({scale}); transition: transform 0.2s; max-height: 350px; background: white; padding: 10px; border-radius: 5px;">
+        <div class="svg-container" style="transform: scale({scale}); transition: transform 0.2s; background: white; border-radius: 5px; width: {svgStats.width}px; height: {svgStats.height}px; display: flex; align-items: center; justify-content: center;">
           {@html svgString}
         </div>
       </div>
@@ -262,11 +262,16 @@
 
 <style>
   :global(svg) {
-    max-width: 100%; 
-    max-height: 350px;
-    width: auto;
-    height: auto;
+    width: 100%;
+    height: 100%;
     display: block;
+    object-fit: contain;
+  }
+  
+  .svg-container {
+    max-width: 100%;
+    max-height: 350px;
+    overflow: visible;
   }
   
   @media (prefers-color-scheme: dark) {
