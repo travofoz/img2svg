@@ -127,7 +127,7 @@
               style="transform: scale({scale});"
             />
           </div>
-          <div class="diff-item-2 flex items-center justify-center bg-white">
+          <div class="diff-item-2 flex items-center justify-center bg-white dark:bg-gray-800">
             <div style="transform: scale({scale}); transition: transform 0.2s; max-height: 350px; display: flex; align-items: center; justify-content: center;">
               {@html svgString}
             </div>
@@ -222,12 +222,18 @@
   /* Make sure diff slider is visible */
   :global(.diff-resizer) {
     width: 4px;
-    background-color: theme('colors.primary');
+    background-color: hsl(var(--p));
     opacity: 0.8;
   }
   
-  /* Make background white for SVG visibility */
+  /* Ensure SVG visibility with appropriate background */
   :global(.diff-item-2) {
     background: white;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    :global(html[data-theme="luxury"] .diff-item-2) {
+      background: #1a1a1a;
+    }
   }
 </style>

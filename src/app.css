@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: retro --default, luxury --prefersdark;
+}
 
 /* Global styles */
 body {
