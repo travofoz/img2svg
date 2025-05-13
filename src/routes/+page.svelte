@@ -1,4 +1,5 @@
 <script>
+  import SvgPreview from '$lib/components/SvgPreview.svelte';
   import { 
     traceImage, 
     createImageDataFromFile, 
@@ -181,51 +182,17 @@
       {:else if svgString}
         <div class="card bg-base-200 shadow-lg">
           <div class="card-body">
-            <div class="flex justify-between items-center">
-              <h2 class="card-title text-lg">SVG Result</h2>
-              <div class="tabs tabs-boxed bg-base-300">
-                <button class="tab tab-sm {!originalImageUrl ? 'tab-active' : ''}" onclick={() => originalImageUrl = ''}>SVG</button>
-                <button class="tab tab-sm {originalImageUrl ? 'tab-active' : ''}" onclick={() => originalImageUrl = createImageUrlFromFile(uploadedFile)}>Original</button>
-              </div>
-            </div>
-            
-            <!-- Preview area -->
-            <div class="bg-base-300 rounded-box p-4 flex justify-center">
-              {#if originalImageUrl}
-                <img 
-                  src={originalImageUrl} 
-                  alt="Original" 
-                  class="max-w-full max-h-[400px] object-contain" 
-                />
-              {:else}
-                <div class="max-w-full max-h-[400px] overflow-auto">
-                  {@html svgString}
-                </div>
-              {/if}
-            </div>
-            
-            <!-- Action buttons -->
-            <div class="card-actions justify-end mt-4">
-              <button 
-                class="btn btn-primary" 
-                onclick={() => {
-                  const blob = new Blob([svgString], { type: 'image/svg+xml' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `image-${Date.now()}.svg`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                }}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Download SVG
-              </button>
-            </div>
+            <SvgPreview 
+              {svgString} 
+              originalImageUrl={createImageUrlFromFile(uploadedFile)}
+              svgStats={{ 
+                width: imageData?.width || 0, 
+                height: imageData?.height || 0,
+                paths: svgString.match(/<path/g)?.length || 0,
+                nodes: svgString.match(/<(circle|rect|ellipse|line|polygon|polyline)/g)?.length || 0,
+                size: `${Math.round(svgString.length / 1024)}KB`
+              }}
+            />
           </div>
         </div>
       
