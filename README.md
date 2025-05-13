@@ -23,8 +23,8 @@ A web application that converts raster images (PNG, JPG, WebP, GIF, BMP) to SVG 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/png2svg.git
-   cd png2svg
+   git clone https://github.com/yourusername/img2svg.git
+   cd img2svg
    ```
 
 2. Install dependencies:
@@ -37,7 +37,7 @@ A web application that converts raster images (PNG, JPG, WebP, GIF, BMP) to SVG 
    npm run dev
    ```
 
-4. Visit `http://localhost:5173` in your browser
+4. Visit `http://localhost:3150` in your browser
 
 ### Building for Production
 
@@ -47,7 +47,7 @@ npm run build
 
 ## Usage
 
-1. **Upload an image**: Drag and drop a PNG or JPG file, paste from clipboard, or click to browse
+1. **Upload an image**: Drag and drop a PNG, JPG, WebP, GIF, or BMP file, paste from clipboard, or click to browse
 2. **Adjust settings**: Use the preset buttons or fine-tune individual parameters
 3. **View the result**: Switch between original and traced views using the toggle
 4. **Download SVG**: Click the "Download SVG" button to save the vector graphic
