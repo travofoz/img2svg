@@ -204,7 +204,6 @@
           <SvgPreview
             {svgString}
             {originalImageUrl}
-            {showOriginal}
             {svgStats}
             {imageFormat}
             bind:showOriginal
