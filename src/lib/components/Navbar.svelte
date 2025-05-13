@@ -22,7 +22,9 @@
   
   <div class="navbar-end">
     <!-- Theme Switcher -->
-    <ThemeSwitch />
+    <div class="mr-2 cursor-pointer">
+      <ThemeSwitch />
+    </div>
     
     <!-- GitHub Link -->
     <a href="https://github.com/travofoz/img2svg" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-xs" aria-label="GitHub Repository">
