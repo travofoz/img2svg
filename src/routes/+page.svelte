@@ -13,12 +13,14 @@
     getCompatibilityWarnings,
     hasMinimumCompatibility
   } from '$lib/services/browserCompatibility.js';
+  import { getImageWarnings, getImageFormatName } from '$lib/utils/imageProcessors.js';
   import { onMount } from 'svelte';
   
   // Application state
   let uploadedFile = null;
   let originalImageUrl = '';
   let imageData = null;
+  let imageFormat = '';
   let traceOptions = {
     preset: 'default',
     ltres: 1,
@@ -46,9 +48,10 @@
   let isTracing = false;
   let showOriginal = false;
   
-  // Browser compatibility
-  let compatibilityChecked = false;
+  // Warning messages
   let compatibilityWarnings = [];
+  let imageWarnings = [];
+  let compatibilityChecked = false;
   let isCompatible = true;
   
   onMount(() => {
@@ -67,8 +70,17 @@
       // Use only the first file
       uploadedFile = files[0];
       
+      // Clear previous image warnings
+      imageWarnings = [];
+      
+      // Set image format
+      imageFormat = getImageFormatName(uploadedFile.type);
+      
       // Create URL for preview
       originalImageUrl = createImageUrlFromFile(uploadedFile);
+      
+      // Get image-specific warnings
+      imageWarnings = await getImageWarnings(uploadedFile);
       
       try {
         // Convert file to image data
@@ -88,6 +100,8 @@
       originalImageUrl = '';
       imageData = null;
       svgString = '';
+      imageFormat = '';
+      imageWarnings = [];
     }
   }
   
@@ -123,9 +137,9 @@
     }
   }
   
-  // Dismiss compatibility warning
-  function dismissWarning(index) {
-    compatibilityWarnings = compatibilityWarnings.filter((_, i) => i !== index);
+  // Dismiss warning
+  function dismissWarning(warnings, index) {
+    return warnings.filter((_, i) => i !== index);
   }
 </script>
 
@@ -141,7 +155,19 @@
       {#each compatibilityWarnings as warning, i}
         <div class="alert alert-warning mb-2 flex justify-between items-center">
           <span>{warning}</span>
-          <button class="btn btn-sm btn-circle" on:click={() => dismissWarning(i)}>✕</button>
+          <button class="btn btn-sm btn-circle" on:click={() => compatibilityWarnings = dismissWarning(compatibilityWarnings, i)}>✕</button>
+        </div>
+      {/each}
+    </div>
+  {/if}
+  
+  <!-- Image-specific warnings -->
+  {#if imageWarnings.length > 0}
+    <div class="mb-4">
+      {#each imageWarnings as warning, i}
+        <div class="alert alert-info mb-2 flex justify-between items-center">
+          <span>{warning}</span>
+          <button class="btn btn-sm btn-circle" on:click={() => imageWarnings = dismissWarning(imageWarnings, i)}>✕</button>
         </div>
       {/each}
     </div>
@@ -154,7 +180,7 @@
         <!-- Image upload component -->
         <ImageUpload 
           multiple={false} 
-          accept="image/png,image/jpeg"
+          accept="image/png,image/jpeg,image/webp,image/gif,image/bmp"
           on:filesChange={handleFilesChange}
         />
         
@@ -180,6 +206,7 @@
             {originalImageUrl}
             {showOriginal}
             {svgStats}
+            {imageFormat}
             bind:showOriginal
           />
         {/if}

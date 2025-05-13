@@ -1,6 +1,6 @@
 # Image to SVG Converter
 
-A web application that converts raster images (PNG/JPG) to SVG vector graphics using intelligent tracing algorithms.
+A web application that converts raster images (PNG, JPG, WebP, GIF, BMP) to SVG vector graphics using intelligent tracing algorithms.
 
 ## Features
 
@@ -60,6 +60,14 @@ npm run build
 - **Path Simplification**: Reduce complexity of paths
 - **Curve Smoothness**: Adjust the smoothness of curves
 - **Edge Detection**: Enable edge detection for sharper outlines
+
+## Supported Formats
+
+- **PNG**: Optimal for most tracing tasks (preferred format)
+- **JPG/JPEG**: Good for photographs
+- **WebP**: Modern format with good compression
+- **GIF**: Static GIFs work well, for animated GIFs only the first frame is processed
+- **BMP**: Works but may generate large SVGs due to lack of compression
 
 ## Browser Compatibility
 

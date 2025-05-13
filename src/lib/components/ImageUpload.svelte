@@ -162,10 +162,13 @@
       </svg>
       <h3 class="text-lg font-semibold mb-1">Upload Images</h3>
       <p class="text-sm text-base-content/70 mb-3">
-        Drag & drop PNG/JPG here, paste from clipboard, or click to browse
+        Drag & drop images here, paste from clipboard, or click to browse
       </p>
       <div class="badge badge-outline">PNG</div>
       <div class="badge badge-outline">JPG</div>
+      <div class="badge badge-outline">WEBP</div>
+      <div class="badge badge-outline">GIF</div>
+      <div class="badge badge-outline">BMP</div>
     </div>
   {/if}
   

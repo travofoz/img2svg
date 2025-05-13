@@ -3,6 +3,7 @@
   export let svgString = '';
   export let originalImageUrl = '';
   export let showOriginal = false;
+  export let imageFormat = '';
   export let svgStats = {
     width: 0,
     height: 0,
@@ -113,6 +114,13 @@
         <div class="stat-title">Nodes</div>
         <div class="stat-value text-lg">{svgStats.nodes}</div>
       </div>
+      
+      {#if imageFormat}
+        <div class="stat">
+          <div class="stat-title">Source</div>
+          <div class="stat-value text-lg">{imageFormat}</div>
+        </div>
+      {/if}
     </div>
   {/if}
   
