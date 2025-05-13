@@ -131,8 +131,8 @@
 
 <div class="container mx-auto p-4">
   <header class="text-center mb-8">
-    <h1 class="text-4xl font-bold mb-2">PNG to SVG Converter</h1>
-    <p class="text-base-content/70">Upload an image and convert it to a vector SVG using intelligent tracing</p>
+    <h1 class="text-4xl font-bold mb-2">Image to SVG Converter</h1>
+    <p class="text-base-content/70">Upload any raster image and convert it to a vector SVG using intelligent tracing</p>
   </header>
   
   <!-- Compatibility warnings -->
@@ -196,6 +196,6 @@
   
   <!-- Footer -->
   <footer class="mt-8 text-center text-sm text-base-content/70">
-    <p>PNG to SVG Converter - Convert raster images to scalable vector graphics</p>
+    <p>Image to SVG Converter - Transform raster images into scalable vector graphics</p>
   </footer>
 </div>

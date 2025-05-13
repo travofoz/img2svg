@@ -1,6 +1,6 @@
-# PNG to SVG Converter
+# Image to SVG Converter
 
-A web application that converts PNG/JPG images to SVG vector graphics using intelligent tracing algorithms.
+A web application that converts raster images (PNG/JPG) to SVG vector graphics using intelligent tracing algorithms.
 
 ## Features
 

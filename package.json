@@ -1,14 +1,14 @@
 {
-  "name": "png2svg",
+  "name": "img2svg",
   "version": "1.0.0",
-  "description": "A PNG to SVG conversion tool with tracing capabilities",
+  "description": "An image to SVG conversion tool with tracing capabilities",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview"
   },
-  "keywords": ["svg", "png", "trace", "vector", "conversion"],
+  "keywords": ["svg", "image", "png", "jpg", "trace", "vector", "conversion"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
